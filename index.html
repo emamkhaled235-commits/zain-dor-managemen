@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Zain Dor | متابعة الأوردرات</title>
+<style>
+:root{font-family:Tahoma,Arial,sans-serif;color:#f8ebd2;background:#100e0d}*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(115deg,#160f0d,#581c1b,#1b1210);border-bottom:2px solid #c79a50;padding:24px 18px}header .inner,main{max-width:1250px;margin:auto}h1{margin:0;color:#f5c76c;font-size:30px}header p{color:#dec9a6;margin:7px 0 0}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}main{padding:18px}.panel{background:#211916;border:1px solid #6d5030;border-radius:15px;padding:18px;margin-bottom:18px}h2{color:#f2c775;margin:0 0 15px;font-size:20px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.stat{background:#38221b;border:1px solid #5b4130;border-radius:12px;padding:14px;text-align:center}.stat strong{display:block;color:#f5ce80;font-size:27px;margin-top:6px}.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}label{display:block;color:#e9cf9d;font-size:13px}input,select,textarea{display:block;width:100%;background:#fdf6e9;border:1px solid #d4b16c;color:#241b18;border-radius:8px;padding:10px;margin-top:6px;font:inherit}button{background:#d4a552;border:0;border-radius:9px;padding:11px 15px;color:#20130d;font-weight:bold;cursor:pointer;font:inherit}button:hover{filter:brightness(1.1)}button.danger{background:#843a38;color:white}button.ghost{background:#3d2a21;color:#f6d397;border:1px solid #856038}.wide{grid-column:1/-1}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.toolbar>*{flex:1;min-width:160px}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:1080px}th,td{padding:10px;border-bottom:1px solid #5a4436;text-align:right;vertical-align:middle}th{background:#4d1d1b;color:#f9d482}td select{min-width:140px}.muted{color:#c8b298;font-size:12px}.late{color:#ff9292;font-weight:bold}.pill{border:1px solid #9c783d;color:#f3d398;border-radius:30px;padding:6px 10px;font-size:12px}.photo{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#4a382a}.actions{display:flex;gap:6px}.actions button{padding:8px}.hint{background:#33281e;border-right:3px solid #e0b762;padding:12px;margin:0 0 16px;border-radius:6px}details summary{cursor:pointer;color:#f5d18b}footer{text-align:center;padding:20px;color:#ad9676}@media(max-width:600px){h1{font-size:25px}.panel{padding:13px}}
+</style></head><body>
+<header><div class="inner top"><div><h1>♛ ZAIN DOR</h1><p>لوحة متابعة أوردرات الخواتم</p></div><span class="pill">نسخة تجريبية 1.0</span></div></header>
+<main>
+<p class="hint">هذه نسخة معاينة تحفظ الأوردرات على جهازك فقط. مشاركة البيانات بين العمال وتسجيل الدخول الحقيقي سيتم تفعيلهما عند ربط قاعدة بيانات آمنة.</p>
+<section class="panel"><h2>ملخص المتابعة</h2><div class="stats" id="stats"></div></section>
+<section class="panel"><h2>تسجيل تأكيد جديد</h2><form class="form" id="orderForm">
+<label>كود الأوردر *<input name="code" placeholder="silver1023" required maxlength="80"></label>
+<label>اسم العميل / الاسم على الخاتم<input name="customer" placeholder="محمد كمال حسين"></label>
+<label>المقاس<input name="size" placeholder="24"></label>
+<label>نوع الحجر<select name="stone"><option>حجر المزاج</option><option>حجر التنين</option><option>عين التنين</option><option>أخرى</option></select></label>
+<label>تاريخ ووقت التأكيد *<input name="confirmed" type="datetime-local" required></label>
+<label>اسم العامل<input name="worker" placeholder="اسم المسؤول"></label>
+<label>رابط صورة التصميم<input name="image" type="url" placeholder="https://..."></label>
+<label>تاريخ التسليم المتوقع (اختياري)<input name="manualDue" type="date"></label>
+<label class="wide">ملاحظات الأوردر<textarea name="notes" rows="2" placeholder="تفاصيل الصورة أو النقش أو لون الحجر"></textarea></label>
+<div class="wide"><button type="submit">+ تسجيل التأكيد</button></div></form></section>
+<section class="panel"><div class="top"><h2>جدول متابعة الأوردرات</h2><button class="ghost" id="exportBtn">تصدير CSV</button></div>
+<div class="toolbar"><input id="search" placeholder="بحث بالكود أو الاسم أو العامل"><select id="stageFilter"><option value="">كل المراحل</option><option>تم التأكيد</option><option>تحت التشغيل</option><option>متشطب</option><option>وصل المخزن</option><option>استلمه المخزن</option></select><select id="paymentFilter"><option value="">كل الحسابات</option><option>معلق</option><option>اتحاسبنا</option></select></div>
+<div class="tablewrap"><table><thead><tr><th>الصورة</th><th>الكود</th><th>الاسم / التفاصيل</th><th>المقاس / الحجر</th><th>العامل</th><th>تاريخ التأكيد</th><th>التسليم المتوقع</th><th>مرحلة التنفيذ</th><th>الحساب</th><th>تفاصيل</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<section class="panel"><h2>سجل التحديثات</h2><div id="history" class="muted"></div></section>
+</main><footer>Zain Dor · Order Management</footer>
+<dialog id="detail" style="max-width:580px;width:94%;background:#231915;color:#f8ebd2;border:1px solid #c79a50;border-radius:16px;padding:22px"><div id="detailBody"></div><button onclick="document.getElementById('detail').close()">إغلاق</button></dialog>
+<script>
+const KEY='zaindor_orders_v1',HKEY='zaindor_history_v1',stages=['تم التأكيد','تحت التشغيل','متشطب','وصل المخزن','استلمه المخزن'],payments=['معلق','اتحاسبنا'];
+let orders=read(KEY,[]),history=read(HKEY,[]);
+function read(k,f){try{return JSON.parse(localStorage.getItem(k))||f}catch{return f}}
+const $=id=>document.getElementById(id),escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','&#39;':"'"}[c]||'&#39;'));
+function persist(){localStorage.setItem(KEY,JSON.stringify(orders));localStorage.setItem(HKEY,JSON.stringify(history));render()}
+function log(code,event){history.unshift({code,event,at:new Date().toISOString()});history=history.slice(0,300)}
+function deadline(o){if(o.manualDue)return new Date(o.manualDue+'T23:59:59');const d=new Date(o.confirmed);if(d.getHours()>=16)d.setDate(d.getDate()+1);d.setHours(23,59,59,999);d.setDate(d.getDate()+3);return d}
+function date(v){return v?new Date(v).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'}):'—'}
+function overdue(o){return o.stage!=='استلمه المخزن'&&deadline(o)<new Date()}
+function stageOptions(value){return stages.map(s=>'<option '+(s===value?'selected':'')+'>'+s+'</option>').join('')}
+function paymentOptions(value){return payments.map(s=>'<option '+(s===value?'selected':'')+'>'+s+'</option>').join('')}
+function render(){
+const metrics=[['كل الأوردرات',orders.length],...stages.map(s=>[s,orders.filter(o=>o.stage===s).length]),['متأخر',orders.filter(overdue).length],['حساب معلق',orders.filter(o=>o.payment==='معلق').length]];
+$('stats').innerHTML=metrics.map(([label,count])=>'<div class="stat">'+escapeHtml(label)+'<strong>'+count+'</strong></div>').join('');
+const q=$('search').value.trim().toLowerCase(),sf=$('stageFilter').value,pf=$('paymentFilter').value;
+$('rows').innerHTML=orders.filter(o=>(!sf||o.stage===sf)&&(!pf||o.payment===pf)&&[o.code,o.customer,o.worker,o.notes].some(x=>String(x||'').toLowerCase().includes(q))).map(o=>'<tr><td>'+(o.image?'<img class="photo" src="'+escapeHtml(o.image)+'" alt="صورة الخاتم" loading="lazy">':'—')+'</td><td><strong>'+escapeHtml(o.code)+'</strong></td><td>'+escapeHtml(o.customer||'—')+'<div class="muted">'+escapeHtml(o.notes||'')+'</div></td><td>'+escapeHtml(o.size||'—')+'<div class="muted">'+escapeHtml(o.stone)+'</div></td><td>'+escapeHtml(o.worker||'—')+'</td><td>'+date(o.confirmed)+'</td><td class="'+(overdue(o)?'late':'')+'">'+date(deadline(o))+(overdue(o)?'<div>متأخر</div>':'')+'</td><td><select data-id="'+escapeHtml(o.id)+'" data-field="stage">'+stageOptions(o.stage)+'</select></td><td><select data-id="'+escapeHtml(o.id)+'" data-field="payment">'+paymentOptions(o.payment)+'</select></td><td><button class="ghost" data-detail="'+escapeHtml(o.id)+'">عرض</button></td></tr>').join('')||'<tr><td colspan="10">لا توجد أوردرات مطابقة</td></tr>';
+$('history').innerHTML=history.slice(0,25).map(h=>'<p>'+date(h.at)+' · '+escapeHtml(h.code)+' · '+escapeHtml(h.event)+'</p>').join('')||'لا توجد تحديثات بعد';
+}
+$('orderForm').addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));data.code=data.code.trim();if(orders.some(o=>o.code.toLowerCase()===data.code.toLowerCase()))return alert('كود الأوردر موجود بالفعل');const now=new Date().toISOString();orders.unshift({...data,id:crypto.randomUUID(),stage:stages[0],payment:payments[0],events:[{stage:stages[0],at:now}],paymentAt:null});log(data.code,'تسجيل تأكيد جديد');e.target.reset();$('orderForm').elements.confirmed.value=localDateTime();persist()});
+$('rows').addEventListener('change',e=>{const {id,field}=e.target.dataset;if(!id||!['stage','payment'].includes(field))return;const o=orders.find(x=>x.id===id);if(!o)return;const value=e.target.value,allowed=field==='stage'?stages:payments;if(!allowed.includes(value))return;o[field]=value;const at=new Date().toISOString();if(field==='stage')o.events.push({stage:value,at});else o.paymentAt=value==='اتحاسبنا'?at:null;log(o.code,(field==='stage'?'تغيير المرحلة: ':'تغيير الحساب: ')+value);persist()});
+$('rows').addEventListener('click',e=>{const id=e.target.dataset.detail;if(!id)return;const o=orders.find(x=>x.id===id);if(!o)return;$('detailBody').innerHTML='<h2>'+escapeHtml(o.code)+'</h2><p>'+escapeHtml(o.customer)+' — '+escapeHtml(o.stone)+' — مقاس '+escapeHtml(o.size)+'</p><p>العامل: '+escapeHtml(o.worker||'—')+'</p><p>الحساب: '+escapeHtml(o.payment)+(o.paymentAt?' ('+date(o.paymentAt)+')':'')+'</p><h3>تاريخ المراحل</h3>'+o.events.map(ev=>'<p>'+escapeHtml(ev.stage)+' — '+date(ev.at)+'</p>').join('')+'<p>ملاحظات: '+escapeHtml(o.notes||'—')+'</p>';$('detail').showModal()});
+['search','stageFilter','paymentFilter'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
+function localDateTime(){const d=new Date(),offset=d.getTimezoneOffset()*60000;return new Date(d-offset).toISOString().slice(0,16)}
+$('orderForm').elements.confirmed.value=localDateTime();
+$('exportBtn').addEventListener('click',()=>{const fields=['code','customer','size','stone','worker','confirmed','stage','payment','notes'],lines=[fields.join(','),...orders.map(o=>fields.map(f=>'"'+String(o[f]??'').replace(/"/g,'""')+'"').join(','))],blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='zain-dor-orders.csv';a.click();URL.revokeObjectURL(url)});
+render();
+</script></body></html>
