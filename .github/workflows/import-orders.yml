@@ -1,0 +1,26 @@
+name: Secure Zain Dor order import
+on:
+  workflow_dispatch:
+    inputs:
+      orders_json:
+        description: 'JSON array of confirmed orders (avoid sensitive personal information)'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: zain-dor-order-import
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Validate secrets and import confirmed orders
+        env:
+          SUPABASE_URL: ${{ secrets.ZAIN_DOR_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.ZAIN_DOR_SUPABASE_SERVICE_ROLE_KEY }}
+          ORDERS_JSON: ${{ inputs.orders_json }}
+        run: node scripts/import-orders.mjs
