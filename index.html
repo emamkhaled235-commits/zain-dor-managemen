@@ -183,7 +183,7 @@ async function setSession(s){
  $('resetGate').hidden=true;
  $('signupGate').hidden=true;
  const isCustomerView=new URLSearchParams(location.search).has('track')||!$('customerGate').hidden;
- $('loginGate').hidden=!!s||isCustomerView;
+ if(s||isCustomerView)$('loginGate').hidden=true;else if(document.activeElement!==$('loginEmail')&&document.activeElement!==$('loginPassword')&&!loginSubmitting)$('loginGate').hidden=false;
  $('appContent').hidden=!s;
  $('logoutBtn').hidden=!s;
  if(channel){await client.removeChannel(channel);channel=null}
@@ -198,13 +198,23 @@ async function setSession(s){
 $('showSignupBtn').addEventListener('click',()=>{$('loginGate').hidden=true;$('signupGate').hidden=false;$('signupMessage').textContent=''});
 $('backToLoginBtn').addEventListener('click',()=>{$('signupGate').hidden=true;$('loginGate').hidden=false});
 $('signupForm').addEventListener('submit',async e=>{e.preventDefault();const form=e.target,btn=form.querySelector('button[type="submit"]'),msg=$('signupMessage');btn.disabled=true;msg.textContent='جاري إنشاء الحساب...';const fd=new FormData(form);try{const {data,error}=await client.auth.signUp({email:String(fd.get('email')).trim(),password:String(fd.get('password')),options:{data:{full_name:String(fd.get('fullName')).trim()},emailRedirectTo:location.origin+location.pathname}});if(error)throw error;msg.textContent='تم إرسال الطلب. أكد بريدك الإلكتروني لو وصلك رابط، وبعدها انتظر موافقة الأدمن. لا يمكنك الدخول قبل الموافقة.';form.reset()}catch(err){msg.textContent='تعذر التسجيل: '+err.message}finally{btn.disabled=false}});
+// Keep the email visible across refreshes and prevent auth initialization from disrupting typing.
+const LOGIN_EMAIL_KEY='zain_login_email';
+try{const savedEmail=sessionStorage.getItem(LOGIN_EMAIL_KEY);if(savedEmail&&!$('loginEmail').value)$('loginEmail').value=savedEmail}catch(_){}
+$('loginEmail').addEventListener('input',()=>{try{sessionStorage.setItem(LOGIN_EMAIL_KEY,$('loginEmail').value)}catch(_){}});
+let loginSubmitting=false;
 $('loginForm').addEventListener('submit',async e=>{
- e.preventDefault();$('loginError').textContent='جاري تسجيل الدخول...';
- const {error}=await client.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
- if(error)$('loginError').textContent='تعذر الدخول: '+error.message;
+ e.preventDefault();if(loginSubmitting)return;
+ const email=$('loginEmail').value.trim(),password=$('loginPassword').value;
+ if(!email||!password){$('loginError').textContent='اكتب الإيميل وكلمة المرور';return}
+ loginSubmitting=true;const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;
+ $('loginError').textContent='جاري تسجيل الدخول...';
+ try{const {error}=await client.auth.signInWithPassword({email,password});if(error)$('loginError').textContent='تعذر الدخول: '+error.message;}
+ catch(err){$('loginError').textContent='تعذر الاتصال: '+(err.message||'حاول مرة أخرى')}
+ finally{loginSubmitting=false;btn.disabled=false}
 });
 $('logoutBtn').addEventListener('click',()=>client.auth.signOut());
-client.auth.onAuthStateChange((event,s)=>{if(event==='PASSWORD_RECOVERY')recoveryMode=true;setTimeout(()=>setSession(s),0)});
+client.auth.onAuthStateChange((event,s)=>{if(event==='PASSWORD_RECOVERY')recoveryMode=true;if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED')return;setTimeout(()=>setSession(s),0)});
 $('forgotPasswordBtn').addEventListener('click',async()=>{const email=$('loginEmail').value.trim();if(!email){$('loginError').textContent='اكتب إيميل حسابك الأول';return}const btn=$('forgotPasswordBtn');btn.disabled=true;$('loginError').textContent='جاري إرسال رابط تغيير كلمة المرور...';const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});$('loginError').textContent=error?'تعذر الإرسال: '+error.message:'لو الإيميل مسجل، هتوصلك رسالة استعادة جديدة. افتح أحدث رسالة من Gmail.';btn.disabled=false});
 (async()=>{const p=new URLSearchParams(location.search);if(p.get('token_hash')&&p.get('type')==='recovery'){recoveryMode=true;const {error}=await client.auth.verifyOtp({token_hash:p.get('token_hash'),type:'recovery'});if(error){recoveryMode=false;$('loginError').textContent='رابط الاستعادة انتهى أو غير صالح. اطلب رابط جديد.'}else window.history.replaceState(null,'',location.pathname)}})();
 $('resetForm').addEventListener('submit',async e=>{e.preventDefault();const password=$('newPassword').value;if(password!==$('confirmPassword').value){$('resetError').textContent='كلمتا المرور غير متطابقتين';return}if(password.length<8){$('resetError').textContent='كلمة المرور لازم تكون 8 أحرف على الأقل';return}const btn=e.target.querySelector('button');btn.disabled=true;$('resetError').textContent='جاري حفظ كلمة المرور...';try{const {error}=await client.auth.updateUser({password});if(error)throw error;$('resetError').textContent='تم تغيير كلمة المرور بنجاح';recoveryMode=false;window.history.replaceState(null,'',location.pathname);await client.auth.signOut();$('resetGate').hidden=true;$('loginGate').hidden=false;$('loginError').textContent='تم تغيير كلمة المرور. سجل دخولك الآن بالباسورد الجديد.'}catch(err){$('resetError').textContent='تعذر تغيير كلمة المرور: '+err.message}finally{btn.disabled=false}});
