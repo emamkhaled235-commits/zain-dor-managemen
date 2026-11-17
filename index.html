@@ -177,21 +177,40 @@ async function loadStaff(){if(currentRole!=='admin'||!session)return;const msg=$
 $('staffRefresh').addEventListener('click',loadStaff);
 $('staffRows').addEventListener('click',async e=>{const btn=e.target.closest('[data-save-staff]');if(!btn||currentRole!=='admin'||!session)return;const id=btn.dataset.saveStaff,card=btn.closest('.staff-card'),role=card.querySelector('[data-staff-role]').value,active=card.querySelector('[data-staff-active]').value==='true',msg=$('staffMessage');if(id===session.user.id&&(role!=='admin'||!active)){msg.textContent='لا يمكنك إيقاف حساب الأدمن الحالي أو سحب صلاحياته من هذه الشاشة';return}if(!confirm('تأكيد تعديل صلاحية وحالة هذا الحساب؟'))return;btn.disabled=true;msg.textContent='جاري حفظ الصلاحيات...';try{const {data,error}=await client.from('staff').update({role,active}).eq('user_id',id).select('user_id,role,active');if(error)throw error;if(!data?.length)throw Error('السيرفر رفض التعديل أو لا توجد صلاحية كافية');msg.textContent='✓ تم حفظ التعديل على السيرفر';await loadStaff()}catch(err){msg.textContent='فشل التعديل: '+err.message}finally{btn.disabled=false}});
 
+let authViewRevision=0;
 async function setSession(s){
+ const revision=++authViewRevision;
  session=s;
  if(recoveryMode){$('signupGate').hidden=true;$('loginGate').hidden=true;$('appContent').hidden=true;$('resetGate').hidden=false;return}
  $('resetGate').hidden=true;
  $('signupGate').hidden=true;
  const isCustomerView=new URLSearchParams(location.search).has('track')||!$('customerGate').hidden;
- if(s||isCustomerView)$('loginGate').hidden=true;else if(document.activeElement!==$('loginEmail')&&document.activeElement!==$('loginPassword')&&!loginSubmitting)$('loginGate').hidden=false;
- $('appContent').hidden=!s;
- $('logoutBtn').hidden=!s;
  if(channel){await client.removeChannel(channel);channel=null}
- if(!s){currentRole='worker';orders=[];history=[];$('staffPanel').hidden=true;$('staffMenuLink').hidden=true;showDashboardView('home');return}
+ if(revision!==authViewRevision)return;
+ if(!s){
+   currentRole='worker';orders=[];history=[];
+   $('staffPanel').hidden=true;$('staffMenuLink').hidden=true;
+   $('appContent').hidden=true;$('logoutBtn').hidden=true;
+   if(!isCustomerView)$('loginGate').hidden=false;
+   return;
+ }
  const {data,error}=await client.from('staff').select('role,active,full_name').eq('user_id',s.user.id).maybeSingle();
- if(error||!data?.active){$('appContent').hidden=true;$('loginGate').hidden=false;$('loginError').textContent=error?'تعذر التحقق من صلاحية الحساب: '+error.message:'حسابك بانتظار موافقة الأدمن أو موقوف حاليًا.';return}
- currentRole=data.role;$('accountLabel').textContent=data.full_name+' · '+data.role;$('staffMenuLink').hidden=currentRole!=='admin';$('staffPanel').hidden=currentRole!=='admin';if(currentRole==='admin')await loadStaff();
+ if(revision!==authViewRevision)return;
+ if(error||!data?.active){
+   $('appContent').hidden=true;$('logoutBtn').hidden=false;
+   if(!isCustomerView)$('loginGate').hidden=false;
+   $('loginError').textContent=error?'تعذر التحقق من صلاحية الحساب: '+error.message:'حسابك بانتظار موافقة الأدمن أو موقوف حاليًا.';
+   return;
+ }
+ currentRole=data.role;
+ $('accountLabel').textContent=data.full_name+' · '+data.role;
+ $('staffMenuLink').hidden=currentRole!=='admin';
+ $('staffPanel').hidden=currentRole!=='admin';
+ $('loginGate').hidden=true;$('appContent').hidden=false;$('logoutBtn').hidden=false;
+ if(currentRole==='admin')await loadStaff();
+ if(revision!==authViewRevision)return;
  await loadOrders();
+ if(revision!==authViewRevision)return;
  showImportPanel();
  channel=client.channel('zain-dor-orders').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
 }
@@ -214,11 +233,11 @@ $('loginForm').addEventListener('submit',async e=>{
  finally{loginSubmitting=false;btn.disabled=false}
 });
 $('logoutBtn').addEventListener('click',()=>client.auth.signOut());
-client.auth.onAuthStateChange((event,s)=>{if(event==='PASSWORD_RECOVERY')recoveryMode=true;if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED')return;setTimeout(()=>setSession(s),0)});
+client.auth.onAuthStateChange((event,s)=>{if(event==='PASSWORD_RECOVERY')recoveryMode=true;if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'||event==='INITIAL_SESSION')return;setTimeout(()=>setSession(s),0)});
 $('forgotPasswordBtn').addEventListener('click',async()=>{const email=$('loginEmail').value.trim();if(!email){$('loginError').textContent='اكتب إيميل حسابك الأول';return}const btn=$('forgotPasswordBtn');btn.disabled=true;$('loginError').textContent='جاري إرسال رابط تغيير كلمة المرور...';const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});$('loginError').textContent=error?'تعذر الإرسال: '+error.message:'لو الإيميل مسجل، هتوصلك رسالة استعادة جديدة. افتح أحدث رسالة من Gmail.';btn.disabled=false});
 (async()=>{const p=new URLSearchParams(location.search);if(p.get('token_hash')&&p.get('type')==='recovery'){recoveryMode=true;const {error}=await client.auth.verifyOtp({token_hash:p.get('token_hash'),type:'recovery'});if(error){recoveryMode=false;$('loginError').textContent='رابط الاستعادة انتهى أو غير صالح. اطلب رابط جديد.'}else window.history.replaceState(null,'',location.pathname)}})();
 $('resetForm').addEventListener('submit',async e=>{e.preventDefault();const password=$('newPassword').value;if(password!==$('confirmPassword').value){$('resetError').textContent='كلمتا المرور غير متطابقتين';return}if(password.length<8){$('resetError').textContent='كلمة المرور لازم تكون 8 أحرف على الأقل';return}const btn=e.target.querySelector('button');btn.disabled=true;$('resetError').textContent='جاري حفظ كلمة المرور...';try{const {error}=await client.auth.updateUser({password});if(error)throw error;$('resetError').textContent='تم تغيير كلمة المرور بنجاح';recoveryMode=false;window.history.replaceState(null,'',location.pathname);await client.auth.signOut();$('resetGate').hidden=true;$('loginGate').hidden=false;$('loginError').textContent='تم تغيير كلمة المرور. سجل دخولك الآن بالباسورد الجديد.'}catch(err){$('resetError').textContent='تعذر تغيير كلمة المرور: '+err.message}finally{btn.disabled=false}});
-client.auth.getSession().then(({data})=>setSession(data.session));
+client.auth.getSession().then(({data})=>setSession(data.session)).catch(err=>{$('loginError').textContent='تعذر التحقق من الجلسة: '+err.message});
 function compressImage(file){return new Promise((resolve,reject)=>{if(!file.type.startsWith('image/'))return reject(Error('اختار صورة صالحة'));if(file.size>20*1024*1024)return reject(Error('الصورة أكبر من 20 ميجابايت'));if(file.size<=10*1024*1024&&['image/jpeg','image/png','image/webp'].includes(file.type))return resolve(file);const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);const ratio=Math.min(1,2560/Math.max(img.width,img.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*ratio));canvas.height=Math.max(1,Math.round(img.height*ratio));const ctx=canvas.getContext('2d');if(!ctx)return reject(Error('تعذر تجهيز الصورة'));ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>blob?resolve(blob):reject(Error('فشل تجهيز الصورة')),'image/jpeg',.94)};img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('تعذر قراءة الصورة'))};img.src=url})}
 $('imageFile').addEventListener('change',async e=>{const file=e.target.files[0],preview=$('imagePreview');preview.hidden=true;if(!file)return;try{const blob=await compressImage(file);preview.src=URL.createObjectURL(blob);preview.hidden=false}catch(err){alert(err.message);e.target.value=''}});
 $('quickImageFile').addEventListener('change',async e=>{const file=e.target.files[0],preview=$('quickImagePreview');preview.hidden=true;if(!file)return;try{const blob=await compressImage(file);preview.src=URL.createObjectURL(blob);preview.hidden=false}catch(err){alert(err.message);e.target.value=''}});
