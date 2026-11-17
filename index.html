@@ -110,7 +110,7 @@ footer{color:#b3a181}
 <label>تاريخ التسليم المتوقع (اختياري)<input name="manualDue" type="date"></label>
 <label>أولوية الأوردر<select name="priority"><option value="عادي">عادي</option><option value="مستعجل">مستعجل</option></select></label><label>هل توجد مشكلة؟<select name="issue"><option value="لا">لا</option><option value="نعم">نعم</option></select></label><label class="wide">ملاحظات الأوردر (اختياري)<textarea name="notes" rows="3" placeholder="تفاصيل الصورة أو النقش أو لون الحجر أو تعليمات التشغيل"></textarea></label>
 <div class="wide"><button type="submit">+ تسجيل التأكيد</button></div></form></section>
-<section class="panel app-view" data-view="orders"><div class="top"><h2 id="tableTitle">جدول متابعة الأوردرات</h2><button class="ghost" id="exportBtn">تصدير CSV</button></div>
+<section class="panel app-view" data-view="orders"><div class="top"><h2 id="tableTitle">جدول متابعة الأوردرات</h2><button type="button" id="emptyTrashBtn" class="danger" hidden>🗑 إفراغ سلة المحذوفات نهائيًا</button><button class="ghost" id="exportBtn">تصدير CSV</button></div>
 <div class="toolbar"><input id="search" placeholder="بحث بالكود أو الاسم أو العامل"><select id="stageFilter"><option value="">كل المراحل</option><option>تحت التصميم</option><option>تم التأكيد</option><option>تحت التشغيل</option><option>في التشطيب</option><option>متشطب</option><option>وصل المخزن</option><option>جاهز للتسليم</option><option>استلمه المخزن</option></select><select id="paymentFilter"><option value="">كل الحسابات</option><option>معلق</option><option>اتحاسبنا</option></select></div>
 <div class="tablewrap"><table><thead><tr><th>الصورة</th><th>الكود</th><th>الاسم / التفاصيل</th><th>المقاس / الحجر</th><th>العامل</th><th>تاريخ التأكيد</th><th>التسليم المتوقع</th><th>مرحلة التنفيذ</th><th>الحساب</th><th>الأولوية</th><th>مشكلة</th><th>تفاصيل</th></tr></thead><tbody id="rows"></tbody></table></div><div id="mobileOrders" class="mobile-orders"></div></section>
 <section class="panel app-view" data-view="history"><h2>سجل التحديثات</h2><div id="history" class="muted"></div></section>
@@ -154,6 +154,7 @@ const sections=[['الكل','كل الأوردرات'],['تحت التصميم',
 const matches=(o,key)=>key==='الكل'?o.stage!=='ملغي':key==='اتحاسبنا'?o.stage!=='ملغي'&&o.payment==='اتحاسبنا':key==='مشكلة'?o.stage!=='ملغي'&&o.issue==='نعم':key==='متأخر'?overdue(o):key==='مستعجل'?o.stage!=='ملغي'&&o.priority==='مستعجل':key==='حساب معلق'?o.stage!=='ملغي'&&o.payment==='معلق':key==='دفع عربون'?o.stage!=='ملغي'&&o.payment==='دفع عربون':o.stage===key;
 $('sectionTabs').innerHTML=sections.map(([key,title])=>'<button class="tab '+(activeSection===key?'selected':'')+'" data-section="'+key+'">'+title+' <b>'+orders.filter(o=>matches(o,key)).length+'</b></button>').join('');
 $('tableTitle').textContent=sections.find(x=>x[0]===activeSection)?.[1]||'الأوردرات';
+$('emptyTrashBtn').hidden=!(activeSection==='ملغي'&&currentRole==='admin'&&orders.some(o=>o.stage==='ملغي'));
 const metrics=[['كل الأوردرات',orders.filter(o=>o.stage!=='ملغي').length],...stages.map(s=>[s,orders.filter(o=>o.stage===s).length]),['متأخر',orders.filter(overdue).length],['حساب معلق',orders.filter(o=>o.stage!=='ملغي'&&o.payment==='معلق').length],['دفع عربون',orders.filter(o=>o.stage!=='ملغي'&&o.payment==='دفع عربون').length]];
 $('stats').innerHTML=metrics.map(([label,count])=>'<button type="button" class="stat stat-link" data-stat-section="'+escapeHtml(label==='كل الأوردرات'?'الكل':label==='حساب معلق'?'حساب معلق':label)+'" aria-label="عرض أوردرات '+escapeHtml(label)+'">'+escapeHtml(label)+'<strong>'+count+'</strong><span class="stat-open-hint">عرض الأوردرات ←</span></button>').join('');
 const q=$('search').value.trim().toLowerCase(),sf=$('stageFilter').value,pf=$('paymentFilter').value;const visibleOrders=orders.filter(o=>matches(o,activeSection)&&(!sf||o.stage===sf)&&(!pf||o.payment===pf)&&[o.code,o.customer,o.worker,o.notes,o.order_type].some(x=>String(x||'').toLowerCase().includes(q)));
@@ -275,6 +276,33 @@ function openEdit(id){if(!isManager()){alert('التعديل للمدير وال
 function localInputDate(value){const d=new Date(value);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
 $('cancelEdit').addEventListener('click',()=>$('editDialog').close());
 $('editForm').addEventListener('submit',async e=>{e.preventDefault();if(!isManager())return;const form=e.target,btn=form.querySelector('[type=submit]');btn.disabled=true;$('editError').textContent='جاري حفظ التعديلات...';try{const d=Object.fromEntries(new FormData(form));const existing=orders.find(o=>o.id===d.id);if(!existing)throw Error('الأوردر غير موجود');d.code=d.code.trim();if(orders.some(o=>o.id!==d.id&&o.code.toLowerCase()===d.code.toLowerCase()))throw Error('كود الأوردر مستخدم بالفعل');const image_path=await uploadOrderImages(form.elements.imageFile.files,existing.imagePaths);const payload={code:d.code,customer:d.customer||null,size:d.size||null,stone:d.stone,order_type:d.order_type,worker:d.worker||null,confirmed_at:new Date(d.confirmed).toISOString(),due_at:d.manualDue?new Date(d.manualDue+'T23:59:59').toISOString():null,priority:d.priority,has_issue:d.issue==='نعم',notes:d.notes||null,image_path};const {error}=await client.from('orders').update(payload).eq('id',d.id);if(error)throw error;$('editDialog').close();await loadOrders()}catch(err){$('editError').textContent='تعذر الحفظ: '+err.message}finally{btn.disabled=false}});
+
+$('emptyTrashBtn').addEventListener('click',async()=>{
+ if(currentRole!=='admin'||activeSection!=='ملغي')return;
+ const trashed=orders.filter(o=>o.stage==='ملغي');
+ if(!trashed.length)return;
+ if(!confirm('تحذير: سيتم حذف '+trashed.length+' أوردر نهائيًا من السلة مع صورها، ولا يمكن استرجاعها. هل أنت متأكد؟'))return;
+ const typed=prompt('للتأكيد اكتب كلمة حذف نهائي');
+ if(typed!=='حذف نهائي'){alert('تم إلغاء العملية');return}
+ const btn=$('emptyTrashBtn');btn.disabled=true;
+ let done=0;const failures=[];
+ for(const o of trashed){
+  try{
+   const paths=[...new Set(o.imagePaths||[])].filter(p=>p&&!orders.some(other=>other.id!==o.id&&(other.imagePaths||[]).includes(p)));
+   if(paths.length){
+    const {error:storageError}=await client.storage.from('order-images').remove(paths);
+    if(storageError)throw storageError;
+   }
+   const {error:deleteError}=await client.rpc('zain_permanently_delete_trashed_order',{p_order_id:o.id});
+   if(deleteError)throw deleteError;
+   done++;
+  }catch(err){failures.push(o.code+': '+(err.message||String(err)))}
+ }
+ btn.disabled=false;
+ await loadOrders();
+ alert('تم حذف '+done+' أوردر نهائيًا.'+(failures.length?'\nتعذر حذف '+failures.length+' أوردر:\n'+failures.slice(0,4).join('\n'):''));
+});
+
 async function handleTrashAction(target){const trashId=target.dataset.trash,restoreId=target.dataset.restore;if(!trashId&&!restoreId)return false;if(!isManager()){alert('الحذف والاسترجاع للمدير والأدمن فقط');return true}const item=orders.find(x=>x.id===(trashId||restoreId));if(!item)return true;const restoring=!!restoreId;if(!confirm(restoring?'استرجاع الأوردر '+item.code+' إلى مرحلته السابقة؟':'نقل الأوردر '+item.code+' إلى سلة المحذوفات؟'))return true;let payload;if(restoring){if(!item.previous_stage){alert('لا توجد مرحلة سابقة محفوظة لهذا الأوردر. لا يمكن الاسترجاع تلقائيًا بدونها.');return true}payload={stage:item.previous_stage,previous_stage:null}}else{payload={stage:'ملغي',previous_stage:item.stage}}const {error}=await client.from('orders').update(payload).eq('id',item.id);if(error)alert('تعذر تنفيذ العملية: '+error.message+' — تأكد من تشغيل تحديث قاعدة البيانات الخاص بسلة المحذوفات.');else{$('detail').close();activeSection=restoring?'الكل':'ملغي';await loadOrders()}return true}
 
 $('detail').addEventListener('click',e=>{if(e.target.matches('[data-trash],[data-restore]'))handleTrashAction(e.target);if(e.target.matches('[data-edit]')){$('detail').close();openEdit(e.target.dataset.edit)}});
