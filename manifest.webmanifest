@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "زين | إدارة الأوردرات",
+  "short_name": "زين",
+  "description": "إدارة أوردرات زين ومتابعة مراحل التنفيذ والحسابات",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#100e0d",
+  "theme_color": "#120f12",
+  "icons": [
+    {
+      "src": "./assets/zain-handmade-emblem.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/zain-handmade-emblem.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
