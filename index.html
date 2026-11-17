@@ -75,23 +75,23 @@ const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const KEY='zaindor_orders_v1',HKEY='zaindor_history_v1';
 const stages=['تحت التصميم','تم التأكيد','تحت التشغيل','متشطب','وصل المخزن','استلمه المخزن','ملغي'],payments=['معلق','اتحاسبنا'];
-let orders=[],history=[],activeSection='الكل',session=null,channel=null,recoveryMode=location.hash.includes('type=recovery')||location.search.includes('type=recovery')||location.search.includes('code=')||location.search.includes('token_hash=');
+let currentRole='worker';let orders=[],history=[],activeSection='الكل',session=null,channel=null,recoveryMode=location.hash.includes('type=recovery')||location.search.includes('type=recovery')||location.search.includes('code=')||location.search.includes('token_hash=');
 const $=id=>document.getElementById(id);
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 function deadline(o){if(o.manualDue)return new Date(o.manualDue+'T23:59:59');if(!o.confirmed)return new Date(8640000000000000);const d=new Date(o.confirmed);if(d.getHours()>=16)d.setDate(d.getDate()+1);d.setHours(23,59,59,999);d.setDate(d.getDate()+3);return d}
 function date(v){return v?new Date(v).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'}):'—'}
 function overdue(o){return o.stage!=='استلمه المخزن'&&o.stage!=='ملغي'&&deadline(o)<new Date()}
-function stageOptions(value){return stages.map(s=>'<option '+(s===value?'selected':'')+'>'+s+'</option>').join('')}
+function stageOptions(value){return stages.filter(s=>s!=='ملغي'||['admin','manager'].includes(currentRole)||value==='ملغي').map(s=>'<option '+(s===value?'selected':'')+'>'+s+'</option>').join('')}
 function paymentOptions(value){return payments.map(s=>'<option '+(s===value?'selected':'')+'>'+s+'</option>').join('')}
 function render(){
-const sections=[['الكل','كل الأوردرات'],['تحت التصميم','تحت التصميم'],['تم التأكيد','مؤكدة'],['تحت التشغيل','تحت التشغيل'],['متشطب','متشطبة'],['وصل المخزن','وصلت المخزن'],['استلمه المخزن','استلمها المخزن'],['اتحاسبنا','اتحاسبنا عليها'],['مشكلة','فيها مشاكل'],['متأخر','متأخرة'],['مستعجل','مستعجلة'],['ملغي','ملغية']];
+const sections=[['الكل','كل الأوردرات'],['تحت التصميم','تحت التصميم'],['تم التأكيد','مؤكدة'],['تحت التشغيل','تحت التشغيل'],['متشطب','متشطبة'],['وصل المخزن','وصلت المخزن'],['استلمه المخزن','استلمها المخزن'],['اتحاسبنا','اتحاسبنا عليها'],['مشكلة','فيها مشاكل'],['متأخر','متأخرة'],['مستعجل','مستعجلة'],['ملغي','سلة المحذوفات']];
 const matches=(o,key)=>key==='الكل'?o.stage!=='ملغي':key==='اتحاسبنا'?o.payment==='اتحاسبنا':key==='مشكلة'?o.issue==='نعم':key==='متأخر'?overdue(o):key==='مستعجل'?o.priority==='مستعجل':o.stage===key;
 $('sectionTabs').innerHTML=sections.map(([key,title])=>'<button class="tab '+(activeSection===key?'selected':'')+'" data-section="'+key+'">'+title+' <b>'+orders.filter(o=>matches(o,key)).length+'</b></button>').join('');
 $('tableTitle').textContent=sections.find(x=>x[0]===activeSection)?.[1]||'الأوردرات';
 const metrics=[['كل الأوردرات',orders.filter(o=>o.stage!=='ملغي').length],...stages.map(s=>[s,orders.filter(o=>o.stage===s).length]),['متأخر',orders.filter(overdue).length],['حساب معلق',orders.filter(o=>o.payment==='معلق').length]];
 $('stats').innerHTML=metrics.map(([label,count])=>'<div class="stat">'+escapeHtml(label)+'<strong>'+count+'</strong></div>').join('');
 const q=$('search').value.trim().toLowerCase(),sf=$('stageFilter').value,pf=$('paymentFilter').value;
-$('rows').innerHTML=orders.filter(o=>matches(o,activeSection)&&(!sf||o.stage===sf)&&(!pf||o.payment===pf)&&[o.code,o.customer,o.worker,o.notes].some(x=>String(x||'').toLowerCase().includes(q))).map(o=>'<tr><td>'+(o.image?'<img class="photo" src="'+escapeHtml(o.image)+'" alt="صورة الخاتم" loading="lazy">':'—')+'</td><td><strong>'+escapeHtml(o.code)+'</strong></td><td>'+escapeHtml(o.customer||'—')+'<div class="muted">'+escapeHtml(o.notes||'')+'</div></td><td>'+escapeHtml(o.size||'—')+'<div class="muted">'+escapeHtml(o.stone)+'</div></td><td>'+escapeHtml(o.worker||'—')+'</td><td>'+date(o.confirmed)+'</td><td class="'+(overdue(o)?'late':'')+'">'+date(deadline(o))+(overdue(o)?'<div>متأخر</div>':'')+'</td><td><select data-id="'+escapeHtml(o.id)+'" data-field="stage">'+stageOptions(o.stage)+'</select></td><td><select data-id="'+escapeHtml(o.id)+'" data-field="payment">'+paymentOptions(o.payment)+'</select></td><td><select data-id="'+escapeHtml(o.id)+'" data-field="priority"><option '+(o.priority!=='مستعجل'?'selected':'')+'>عادي</option><option '+(o.priority==='مستعجل'?'selected':'')+'>مستعجل</option></select></td><td><select data-id="'+escapeHtml(o.id)+'" data-field="issue"><option '+(o.issue!=='نعم'?'selected':'')+'>لا</option><option '+(o.issue==='نعم'?'selected':'')+'>نعم</option></select></td><td><button class="ghost" data-detail="'+escapeHtml(o.id)+'">عرض</button></td></tr>').join('')||'<tr><td colspan="12">لا توجد أوردرات مطابقة</td></tr>';
+$('rows').innerHTML=orders.filter(o=>matches(o,activeSection)&&(!sf||o.stage===sf)&&(!pf||o.payment===pf)&&[o.code,o.customer,o.worker,o.notes].some(x=>String(x||'').toLowerCase().includes(q))).map(o=>'<tr><td>'+(o.image?'<img class="photo" src="'+escapeHtml(o.image)+'" alt="صورة الخاتم" loading="lazy">':'—')+'</td><td><strong>'+escapeHtml(o.code)+'</strong></td><td>'+escapeHtml(o.customer||'—')+'<div class="muted">'+escapeHtml(o.notes||'')+'</div></td><td>'+escapeHtml(o.size||'—')+'<div class="muted">'+escapeHtml(o.stone)+'</div></td><td>'+escapeHtml(o.worker||'—')+'</td><td>'+date(o.confirmed)+'</td><td class="'+(overdue(o)?'late':'')+'">'+date(deadline(o))+(overdue(o)?'<div>متأخر</div>':'')+'</td><td><select data-id="'+escapeHtml(o.id)+'" data-field="stage">'+stageOptions(o.stage)+'</select></td><td><select data-id="'+escapeHtml(o.id)+'" data-field="payment">'+paymentOptions(o.payment)+'</select></td><td><select data-id="'+escapeHtml(o.id)+'" data-field="priority"><option '+(o.priority!=='مستعجل'?'selected':'')+'>عادي</option><option '+(o.priority==='مستعجل'?'selected':'')+'>مستعجل</option></select></td><td><select data-id="'+escapeHtml(o.id)+'" data-field="issue"><option '+(o.issue!=='نعم'?'selected':'')+'>لا</option><option '+(o.issue==='نعم'?'selected':'')+'>نعم</option></select></td><td><button class="ghost" data-detail="'+escapeHtml(o.id)+'">عرض</button>'+(['admin','manager'].includes(currentRole)?(o.stage==='ملغي'?'<button class="ghost" data-restore="'+escapeHtml(o.id)+'">استرجاع</button>':'<button class="danger" data-trash="'+escapeHtml(o.id)+'">حذف</button>'):'')+'</td></tr>').join('')||'<tr><td colspan="12">لا توجد أوردرات مطابقة</td></tr>';
 $('history').innerHTML=history.slice(0,25).map(h=>'<p>'+date(h.at)+' · '+escapeHtml(h.code)+' · '+escapeHtml(h.event)+'</p>').join('')||'لا توجد تحديثات بعد';
 }
 
@@ -115,10 +115,10 @@ async function setSession(s){
  $('appContent').hidden=!s;
  $('logoutBtn').hidden=!s;
  if(channel){await client.removeChannel(channel);channel=null}
- if(!s){orders=[];history=[];return}
+ if(!s){currentRole='worker';orders=[];history=[];return}
  const {data,error}=await client.from('staff').select('role,active,full_name').eq('user_id',s.user.id).maybeSingle();
  if(error||!data?.active){$('appContent').hidden=true;$('loginGate').hidden=false;$('loginError').textContent='هذا الحساب غير مفعل ضمن فريق Zain Dor. تواصل مع المدير.';return}
- $('accountLabel').textContent=data.full_name+' · '+data.role;
+ currentRole=data.role;$('accountLabel').textContent=data.full_name+' · '+data.role;
  await loadOrders();
  channel=client.channel('zain-dor-orders').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
 }
@@ -153,14 +153,14 @@ $('rows').addEventListener('change',async e=>{
  const {id,field}=e.target.dataset;if(!id||!['stage','payment','priority','issue'].includes(field))return;
  const o=orders.find(x=>x.id===id);if(!o)return;
  const value=e.target.value,allowed=field==='stage'?stages:field==='payment'?payments:field==='priority'?['عادي','مستعجل']:['لا','نعم'];
- if(!allowed.includes(value))return;
+ if(!allowed.includes(value))return;if(field==='stage'&&value==='ملغي'&&!['admin','manager'].includes(currentRole)){alert('الحذف للمدير والأدمن فقط');await loadOrders();return}
  const column=field==='issue'?'has_issue':field,update={[column]:field==='issue'?value==='نعم':value};
  const {error}=await client.from('orders').update(update).eq('id',id);
  if(error)alert('فشل التحديث: '+error.message);
  await loadOrders();
 });
 $('rows').addEventListener('click',e=>{
- const id=e.target.dataset.detail;if(!id)return;const o=orders.find(x=>x.id===id);if(!o)return;
+ const trashId=e.target.dataset.trash,restoreId=e.target.dataset.restore;if(trashId||restoreId){if(!['admin','manager'].includes(currentRole)){alert('الحذف والاسترجاع للمدير والأدمن فقط');return}const item=orders.find(x=>x.id===(trashId||restoreId));if(!item)return;const restoring=!!restoreId;if(!confirm(restoring?'استرجاع الأوردر '+item.code+'؟':'نقل الأوردر '+item.code+' إلى سلة المحذوفات؟'))return;(async()=>{const {error}=await client.from('orders').update({stage:restoring?'تم التأكيد':'ملغي'}).eq('id',item.id);if(error)alert('تعذر تنفيذ العملية: '+error.message);else{if(restoring)activeSection='الكل';await loadOrders()}})();return}const id=e.target.dataset.detail;if(!id)return;const o=orders.find(x=>x.id===id);if(!o)return;
  $('detailBody').innerHTML='<h2>'+escapeHtml(o.code)+'</h2>'+(o.image?'<img class="detail-photo" src="'+escapeHtml(o.image)+'" alt="صورة التصميم">':'')+'<p>'+escapeHtml(o.customer||'—')+' — '+escapeHtml(o.stone||'—')+' — مقاس '+escapeHtml(o.size||'—')+'</p><p>العامل: '+escapeHtml(o.worker||'—')+'</p><p>المرحلة: '+escapeHtml(o.stage)+'</p><p>الحساب: '+escapeHtml(o.payment)+'</p><p>ملاحظات: '+escapeHtml(o.notes||'—')+'</p>';
  $('detail').showModal();
 });
