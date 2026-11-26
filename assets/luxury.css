@@ -96,3 +96,18 @@ dialog{background:#120e0f!important;border:1px solid var(--lx-gold)!important;bo
 /* viewer role: read-only look (DB already blocks writes) */
 body.role-viewer [data-save-stage],body.role-viewer [data-save-payment],body.role-viewer [data-edit],body.role-viewer [data-trash],body.role-viewer [data-restore],body.role-viewer #bulkStageBar,body.role-viewer [data-go-view="quick"],body.role-viewer [data-go-view="new"],body.role-viewer [data-go-view="import"],body.role-viewer .dash-quick-btn:not([data-create-track]),body.role-viewer [data-bulk-id],body.role-viewer #bulkSelectVisible,body.role-viewer #emptyTrashBtn{display:none!important}
 body.role-viewer .payment-control select,body.role-viewer [data-stage-choice],body.role-viewer [data-field]{pointer-events:none;-webkit-appearance:none;appearance:none;background-image:none!important;border-color:transparent!important;background:transparent!important}
+
+#bestsellers[hidden]{display:none}
+.best-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:8px}
+.best-row .product{position:relative}
+.best-row .product:before{content:"";position:absolute;inset:6px;border:1px solid #e5bd7633;pointer-events:none;z-index:1}
+@media(max-width:700px){.best-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;padding-bottom:6px;scrollbar-width:none}.best-row::-webkit-scrollbar{display:none}.best-row .product{flex:0 0 62%;scroll-snap-align:start}}
+
+#pharaRow:empty{display:none}
+.pharaoh-soon{margin-top:10px;padding:46px 20px;text-align:center;border:1px solid #e5bd7640;background:linear-gradient(180deg,#140f11,#100d10);display:flex;flex-direction:column;gap:8px;align-items:center;position:relative}
+.pharaoh-soon:before{content:"";position:absolute;inset:7px;border:1px solid #e5bd7622;pointer-events:none}
+.pharaoh-soon[hidden]{display:none}
+.pharaoh-soon .orn{color:var(--lx-gold,#e5bd76);font-size:30px;line-height:1}
+.pharaoh-soon strong{font-family:"Amiri",serif;font-size:22px;color:#f3e8d6}
+.pharaoh-soon span:last-child{color:#9d8d73;font-size:14px}
+@media(max-width:700px){.pharaoh-soon{padding:34px 14px}}
