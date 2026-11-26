@@ -115,3 +115,26 @@ body.role-viewer .payment-control select,body.role-viewer [data-stage-choice],bo
 /* nav links group (repairs link) */
 .navlinks{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}.navlinks .staff{white-space:nowrap}
 @media(max-width:520px){.navlinks{flex-direction:column;align-items:flex-end;gap:5px}.navlinks .staff{font-size:11px;padding:6px 10px}}
+
+/* ---- English / LTR (bilingual) ---- */
+html[lang=en] body,html[lang=en] button,html[lang=en] input,html[lang=en] select,html[lang=en] textarea{font-family:"Cormorant Garamond",Cairo,Georgia,serif}
+html[lang=en] body{font-size:17px;letter-spacing:.01em}
+html[lang=en] h1,html[lang=en] h2,html[lang=en] h3,html[lang=en] .section-title,html[lang=en] .logo,html[lang=en] .soon-body h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;letter-spacing:.04em}
+html[lang=en] .hero h1{line-height:1.2;font-weight:500}
+html[lang=en] .category span{display:none}
+html[lang=en] .eyebrow,html[lang=en] .soon-en{letter-spacing:.32em}
+html[lang=en] .staff,html[lang=en] .cta,html[lang=en] .order,html[lang=en] button{letter-spacing:.06em}
+html[lang=en] .dashboard-menu button{text-align:left}
+html[lang=en] .dashboard-menu button:hover{padding-right:0;padding-left:18px}
+html[lang=en] .dashboard-menu button.active,html[lang=en] .dashboard-menu button.selected,html[lang=en] .dashboard-menu button[aria-current]{border-right:0!important;border-left:2px solid var(--lx-gold)!important}
+html[lang=en] .hint{border-right:1px solid var(--lx-line)!important;border-left:2px solid var(--lx-gold)!important}
+html[lang=en] .password-wrap input{padding-left:15px;padding-right:90px}
+html[lang=en] .password-wrap button{left:auto;right:5px}
+html[lang=en] .navlinks{margin-inline-start:0}
+html[lang=en] body *:not(svg):not(path){font-family:inherit}
+html[lang=en] .sub,html[lang=en] .note,html[lang=en] footer{font-size:15px}
+html[lang=en] .staff{font-size:13px}
+@media(max-width:520px){html[lang=en] .staff{font-size:11px}html[lang=en] .logo small{letter-spacing:.18em}}
+@media(max-width:520px){.nav .shell{gap:6px}.nav .logo small{display:none}.navlinks{gap:5px}.navlinks .staff{padding:7px 8px}}
+html[lang=en] .zain-latin{display:none}
+html[lang=en] body{font-variant-numeric:lining-nums}
