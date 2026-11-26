@@ -111,3 +111,7 @@ body.role-viewer .payment-control select,body.role-viewer [data-stage-choice],bo
 .pharaoh-soon strong{font-family:"Amiri",serif;font-size:22px;color:#f3e8d6}
 .pharaoh-soon span:last-child{color:#9d8d73;font-size:14px}
 @media(max-width:700px){.pharaoh-soon{padding:34px 14px}}
+
+/* nav links group (repairs link) */
+.navlinks{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}.navlinks .staff{white-space:nowrap}
+@media(max-width:520px){.navlinks .staff{font-size:11px;padding:7px 9px}.logo{font-size:22px!important}}
