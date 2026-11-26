@@ -5,7 +5,7 @@ function b64(s){var p='='.repeat((4-s.length%4)%4),r=(s+p).replace(/-/g,'+').rep
 function btn(){var b=document.getElementById('zainPushBtn');if(b)return b;b=document.createElement('button');b.id='zainPushBtn';b.type='button';b.style.cssText='position:fixed;bottom:18px;right:18px;z-index:9999;background:#d9b77a;color:#21151a;border:0;border-radius:40px;padding:12px 18px;box-shadow:0 6px 24px #0008;font-weight:bold;cursor:pointer;font-family:inherit';document.body.appendChild(b);return b}
 window.zainPushInit=async function(client,role){
  try{
-  if(!['admin','manager'].includes(role))return;
+  if(!role)return;
   var b=btn();
   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){b.hidden=true;return}
   var reg=await navigator.serviceWorker.register('./sw.js');await navigator.serviceWorker.ready;
