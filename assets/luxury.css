@@ -79,9 +79,9 @@ dialog{background:#120e0f!important;border:1px solid var(--lx-gold)!important;bo
 
 .soon-wrap{padding:20px 0!important}
 .soon{position:relative;height:340px;overflow:hidden;border:1px solid var(--lx-line);display:flex;align-items:center;justify-content:center;text-align:center;background:#100c0d}
-.soon-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;animation:soonfade 30s infinite;transform:scale(1.02)}
-.soon-slide:nth-child(1){animation-delay:0s}.soon-slide:nth-child(2){animation-delay:6s}.soon-slide:nth-child(3){animation-delay:12s}.soon-slide:nth-child(4){animation-delay:18s}.soon-slide:nth-child(5){animation-delay:24s}
-@keyframes soonfade{0%{opacity:0;transform:scale(1.02)}6%{opacity:1}20%{opacity:1}28%{opacity:0;transform:scale(1.12)}100%{opacity:0;transform:scale(1.12)}}
+.soon-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;animation:soonfade 56s infinite;transform:scale(1.02)}
+.soon-slide:nth-child(1){animation-delay:0s}.soon-slide:nth-child(2){animation-delay:7s}.soon-slide:nth-child(3){animation-delay:14s}.soon-slide:nth-child(4){animation-delay:21s}.soon-slide:nth-child(5){animation-delay:28s}.soon-slide:nth-child(6){animation-delay:35s}.soon-slide:nth-child(7){animation-delay:42s}.soon-slide:nth-child(8){animation-delay:49s}
+@keyframes soonfade{0%{opacity:0;transform:scale(1.02)}1.9%{opacity:1}10.0%{opacity:1}15.0%{opacity:0;transform:scale(1.1)}100%{opacity:0;transform:scale(1.1)}}
 .soon-veil{position:absolute;inset:0;background:radial-gradient(ellipse at center,#0b0909cc,#0b0909ee 75%)}
 .soon-body{position:relative;z-index:1;padding:20px}
 .soon-en{font-family:"Cormorant Garamond",serif;letter-spacing:.45em;font-size:13px;color:var(--lx-gold)}
