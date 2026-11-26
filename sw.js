@@ -1,4 +1,4 @@
-const VERSION='zain-pwa-v2';const ICON='./assets/zain-logo.png';
+const VERSION='zain-pwa-v3';const ICON='./assets/zain-logo.png','./assets/luxury.css';
 self.addEventListener('install',event=>{event.waitUntil(caches.open(VERSION).then(cache=>cache.add(ICON)).catch(()=>{}));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('zain-pwa-')&&k!==VERSION).map(k=>caches.delete(k)))));self.clients.claim()});
 self.addEventListener('fetch',event=>{const req=event.request,url=new URL(req.url);if(req.method!=='GET'||url.origin!==self.location.origin)return;if(url.pathname.endsWith('/assets/zain-logo.png')){event.respondWith(caches.match(req).then(cached=>cached||fetch(req)));return}/* Always fetch HTML and order data from network: never cache customer details, login, or admin pages. */});
