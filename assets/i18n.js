@@ -7,6 +7,12 @@ var KEY='zain_lang',D={};
 function add(o){for(var k in o)D[k]=o[k];sorted=null}
 var sorted=null,rx=null;
 add({
+/* ---- drawer + services ---- */
+'المعرض':'Gallery','القائمة':'Menu','القائمة الرئيسية':'Main menu','صُنع خصيصًا لك':'Made for You','الترميم والصيانة':'Restoration & Care','مشغولات بتفاصيل فريدة':'Handcrafted pieces with singular detail',
+'خدماتنا':'Our Services','عناية بقطعتك، وصياغة لما تتمناه':'Care for the piece you own, and craft for the one you imagine.',
+'أرسل صور قطعتك واحصل على تسعير مبدئي، وتعود إليك كأنها وُلدت من جديد.':'Send photos of your piece and receive a preliminary quote. It returns to you as though newly made.',
+'احكِ لنا ما تتمناه، ونحوّله إلى قطعةٍ فريدة تحمل توقيعك.':'Tell us what you imagine, and we will turn it into a singular piece that carries your signature.',
+'ابدأ طلب الترميم ←':'Begin a restoration request →','اطلب قطعتك الخاصة ←':'Request your own piece →',
 /* ---- shared / gallery ---- */
 'زين | ZAIN — متجر المشغولات والمجوهرات':'ZAIN | Handcrafted Jewellery & Silverwork',
 'زين | ZAIN — متجر الخواتم والحلقان والأساور والسبح والأحجار والمشغولات اليدوية.':'ZAIN. Rings, earrings, bracelets, prayer beads, gemstones and handcrafted silverwork.',
@@ -14,7 +20,7 @@ add({
 'زين | المتجر':'ZAIN | Store',
 'زيـن':'ZAIN','زين':'ZAIN','زين | ZAIN':'ZAIN',
 'ZAIN HANDCRAFTED':'HANDCRAFTED',
-'دخول المسوقين والإدارة':'Team Sign-in','الترميم والصيانة':'Restoration',
+'دخول المسوقين والإدارة':'Team Sign-in',
 'MODELS · COMING SOON':'THE NEXT COLLECTION','موديلات':'New Designs','قريبًا — انتظرونا':'Coming soon. Stay with us.',
 'فن التفاصيل':'The art of detail','وأناقة الاختيار':'and the elegance of choice',
 'اكتشف تشكيلتنا من الخواتم والحلقان والأساور والسُبح والأحجار المختارة بعناية. تصفح بحرية بدون تسجيل دخول.':'Discover our collection of rings, earrings, bracelets, prayer beads and carefully chosen stones. Browse freely, no sign-in required.',
@@ -222,9 +228,10 @@ function mount(){
  if(document.getElementById('zainLang'))return;
  var b=document.createElement('button');b.id='zainLang';b.type='button';
  b.addEventListener('click',function(){set(lang==='en'?'ar':'en')});
- var host=document.querySelector('.nav .shell'),mq=window.matchMedia('(max-width:560px)');
+ var acts=document.querySelector('.nav-actions'),host=document.querySelector('.nav .shell'),mq=window.matchMedia('(max-width:560px)');
  function place(){
-  if(host&&!mq.matches){b.className='inline';host.insertBefore(b,host.querySelector('.navlinks')||host.querySelector('.staff'))}
+  if(acts){b.className='inline';acts.insertBefore(b,acts.querySelector('.nav-burger'))}
+  else if(host&&!mq.matches){b.className='inline';host.insertBefore(b,host.querySelector('.navlinks')||host.querySelector('.staff'))}
   else{b.className='float';document.body.appendChild(b)}
  }
  place();

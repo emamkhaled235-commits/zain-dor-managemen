@@ -138,3 +138,8 @@ html[lang=en] .staff{font-size:13px}
 @media(max-width:520px){.nav .shell{gap:6px}.nav .logo small{display:none}.navlinks{gap:5px}.navlinks .staff{padding:7px 8px}}
 html[lang=en] .zain-latin{display:none}
 html[lang=en] body{font-variant-numeric:lining-nums}
+html[lang=en] .svc .en{display:none}
+html[lang=en] .drawer{direction:ltr;right:0;text-align:left}
+html[lang=en] .drawer a.dl:hover{padding-right:4px;padding-left:10px}
+html[lang=en] .svc{text-align:left}html[lang=en] .svc .orn2{left:auto;right:22px}
+html[lang=en] .svc h3,html[lang=en] .drawer-brand{font-family:"Cormorant Garamond",Georgia,serif}
