@@ -90,3 +90,6 @@ dialog{background:#120e0f!important;border:1px solid var(--lx-gold)!important;bo
 .soon-line{width:60px;height:1px;background:var(--lx-gold);margin:0 auto 14px}
 .soon p{color:#e6d6b8;margin:0;letter-spacing:.1em;font-size:18px}
 @media(max-width:700px){.soon{grid-template-columns:1fr}.soon-slides{min-height:320px;border-inline-end:0;border-bottom:1px solid var(--lx-line)}.soon-body{padding:28px 16px}}
+/* viewer role: read-only look (DB already blocks writes) */
+body.role-viewer [data-save-stage],body.role-viewer [data-save-payment],body.role-viewer [data-edit],body.role-viewer [data-trash],body.role-viewer [data-restore],body.role-viewer #bulkStageBar,body.role-viewer [data-go-view="quick"],body.role-viewer [data-go-view="new"],body.role-viewer [data-go-view="import"],body.role-viewer .dash-quick-btn:not([data-create-track]),body.role-viewer [data-bulk-id],body.role-viewer #bulkSelectVisible,body.role-viewer #emptyTrashBtn{display:none!important}
+body.role-viewer .payment-control select,body.role-viewer [data-stage-choice],body.role-viewer [data-field]{pointer-events:none;-webkit-appearance:none;appearance:none;background-image:none!important;border-color:transparent!important;background:transparent!important}

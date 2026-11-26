@@ -230,6 +230,7 @@ async function setSession(s){
  currentRole=data.role;
  $('accountLabel').textContent=data.full_name+' · '+data.role;
  $('staffMenuLink').hidden=currentRole!=='admin';
+ document.body.classList.toggle('role-viewer',currentRole==='viewer');
  $('staffPanel').hidden=currentRole!=='admin';
  $('loginGate').hidden=true;$('appContent').hidden=false;$('logoutBtn').hidden=false;
  if(currentRole==='admin')await loadStaff();
