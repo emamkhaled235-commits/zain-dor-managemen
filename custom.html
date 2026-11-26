@@ -45,4 +45,4 @@ async function load(t){t=(t||'').trim().replace(/.*[?&]t=/,'');if(!/^[0-9a-f-]{3
  $('track').innerHTML=h.join('');$('track').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>act(t,b.dataset.a))}
 $('tkgo').onclick=()=>load($('tk').value);
 const q=new URLSearchParams(location.search).get('t');if(q)load(q);else{try{const a=JSON.parse(localStorage.getItem(LS)||'[]');if(a[0])load(a[0])}catch(e){}}
-</script><script src="./assets/nav.js?v=1"></script></body></html>
+</script><script src="./assets/nav.js?v=2"></script></body></html>

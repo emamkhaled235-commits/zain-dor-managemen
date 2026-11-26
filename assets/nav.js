@@ -6,10 +6,10 @@ var shell=document.querySelector('.nav .shell');if(!shell)return;
 var logo=shell.querySelector('.logo');var act=document.createElement('div');act.className='nav-actions';
 [].slice.call(shell.children).forEach(function(c){if(c!==logo&&!c.classList.contains('nav-actions'))act.appendChild(c)});
 var nl=act.querySelector('.navlinks');if(nl)nl.remove();
-var b=document.createElement('button');b.type='button';b.className='nav-burger';b.setAttribute('aria-label','القائمة');b.setAttribute('aria-expanded','false');b.innerHTML='<i></i><i></i><i></i>';act.appendChild(b);shell.appendChild(act);
+var b=document.createElement('button');b.type='button';b.className='nav-burger ghost';b.setAttribute('aria-label','القائمة');b.setAttribute('aria-expanded','false');b.innerHTML='<i></i><i></i><i></i>';act.appendChild(b);shell.appendChild(act);
 var ov=document.createElement('div');ov.className='drawer-ov';
 var d=document.createElement('aside');d.className='drawer';d.setAttribute('role','dialog');d.setAttribute('aria-label','القائمة الرئيسية');d.setAttribute('aria-hidden','true');
-d.innerHTML='<div class="drawer-top"><div class="drawer-brand">زيـن<small>ZAIN HANDCRAFTED</small></div><button type="button" class="drawer-x" aria-label="إغلاق">&times;</button></div><div class="drawer-line"></div>'+L.map(function(x){return '<a class="dl'+(x[2]==='feat'?' feat':'')+'" href="'+x[1]+'"><span class="o">✦</span>'+x[0]+'</a>'}).join('')+'<div class="dfoot">مشغولات بتفاصيل فريدة</div>';
+d.innerHTML='<div class="drawer-top"><div class="drawer-brand">زيـن<small>ZAIN HANDCRAFTED</small></div><button type="button" class="drawer-x ghost" aria-label="إغلاق">&times;</button></div><div class="drawer-line"></div>'+L.map(function(x){return '<a class="dl'+(x[2]==='feat'?' feat':'')+'" href="'+x[1]+'"><span class="o">✦</span>'+x[0]+'</a>'}).join('')+'<div class="dfoot">مشغولات بتفاصيل فريدة</div>';
 document.body.appendChild(ov);document.body.appendChild(d);
 function open(){document.body.classList.add('drawer-open');b.setAttribute('aria-expanded','true');d.setAttribute('aria-hidden','false')}
 function close(){document.body.classList.remove('drawer-open');b.setAttribute('aria-expanded','false');d.setAttribute('aria-hidden','true')}
