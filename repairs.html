@@ -1,6 +1,6 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0909"><title>زين | الترميم والصيانة</title><meta name="description" content="خدمة ترميم وصيانة المشغولات والمجوهرات من زين: أرسل صور قطعتك واحصل على تسعير مبدئي."><link rel="icon" type="image/png" href="./assets/zain-logo.png"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="./assets/repairs.css?v=1"><link rel="stylesheet" href="./assets/luxury.css?v=6"></head><body>
 <nav class="nav"><div class="shell"><a class="logo" href="./gallery.html">زيـن <small>ZAIN HANDCRAFTED</small></a><a class="back" href="./gallery.html">المعرض ←</a></div></nav>
-<header class="rhero" style="position:relative"><div class="eyebrow">ZAIN &middot; RESTORATION</div><h1>الترميم والصيانة</h1><p class="lead">تعود قطعتك إليك كأنها وُلدت من جديد: تشطيبٌ متقن، صيانةٌ شاملة، وعنايةٌ بأدقّ التفاصيل، حتى تستعيد بريقها الأول</p><span class="orn">✦</span></header>
+<header class="rhero" style="position:relative"><div class="eyebrow">ZAIN &middot; RESTORATION</div><h1>الترميم والصيانة</h1><p class="lead">تعود قطعتك إليك كأنها وُلدت من جديد: تشطيبٌ متقن، صيانةٌ شاملة، وعنايةٌ بأدقّ التفاصيل، حتى تستعيد بريقها الأول</p><span class="orn">✦</span><p style="margin-top:18px"><a class="back" href="./custom.html">صُنع خصيصًا لك ←</a></p></header>
 <main class="shell">
 <ol class="steps"><li>أرسل صور القطعة ووصف المشكلة</li><li>تسعير مبدئي من الفريق</li><li>موافقتك ودفع العربون</li><li>شحن القطعة إلينا</li><li>معاينة، ثم ترميم وإعادة القطعة</li></ol>
 <section class="card" id="trackCard" hidden><h2>متابعة طلبك</h2><p class="s" id="trackCode"></p><div id="track"></div></section>
@@ -10,20 +10,21 @@
 <button class="btn" type="submit" id="send">إرسال الطلب</button><div class="msg" id="msg" role="status"></div></form></section>
 <section class="card"><h2>تتبّع طلب سابق</h2><p class="s">ألصق رابط المتابعة أو رمز الطلب الذي وصلك.</p><input id="tk" placeholder="رمز المتابعة" dir="ltr" style="text-align:left"><button class="btn ghost2" id="tkgo" type="button">عرض الحالة</button></section>
 </main><footer>زين | ZAIN &mdash; مشغولات بتفاصيل فريدة</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>window.ZAIN_KIND='repair'</script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const db=window.supabase.createClient("https://ycfmmulwumzuavgywzgy.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljZm1tdWx3dW16dWF2Z3l3emd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4NjkzNDcsImV4cCI6MjExMDQ0NTM0N30.F3tw-mkJb5IMY7cww6p3Rse0ewrPxIJQ6mwce1MpV_4",{auth:{persistSession:false}});
-const PAY="01119995944",LS='zain_repair_tokens';
+const PAY="01119995944",LS='zain_repair_tokens',KIND=window.ZAIN_KIND||'repair';
 const ST={new:'قيد المراجعة',quoted:'تسعير مبدئي بانتظار موافقتك',accepted:'بانتظار العربون',deposit_sent:'بانتظار تأكيد العربون',deposit_confirmed:'تم تأكيد العربون، بانتظار شحن القطعة',shipped:'القطعة في الطريق إلينا',received:'وصلت القطعة وجارٍ معاينتها',final_priced:'السعر النهائي بانتظار موافقتك',repairing:'جارٍ العمل على قطعتك',ready:'قطعتك جاهزة وفي طريقها إليك',returned:'تم تسليم القطعة',declined:'تم الاعتذار عن الطلب',cancelled:'أُلغي الطلب'};
+if(KIND==='custom')Object.assign(ST,{deposit_confirmed:'تم تأكيد العربون، وسيبدأ التنفيذ قريبًا',repairing:'قطعتك قيد التنفيذ على يد حِرفيّينا',ready:'قطعتك جاهزة',returned:'تم تسليم القطعة'});
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const money=n=>Number(n).toLocaleString('ar-EG')+' ج.م';
 let files=[];
 $('photos').onchange=e=>{files=[...e.target.files].slice(0,6);$('previews').replaceChildren(...files.map(f=>{const i=new Image();i.src=URL.createObjectURL(f);return i}))};
 function shrink(f){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const m=1600,k=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(b=>b?ok(b):no(Error('تعذرت معالجة الصورة')),'image/jpeg',.85)};i.onerror=()=>no(Error('صورة غير صالحة'));i.src=URL.createObjectURL(f)})}
-$('form').onsubmit=async e=>{e.preventDefault();if(!files.length){$('msg').textContent='أرفق صورة واحدة على الأقل';return}
+$('form').onsubmit=async e=>{e.preventDefault();if(!files.length&&KIND==='repair'){$('msg').textContent='أرفق صورة واحدة على الأقل';return}
  $('send').disabled=true;$('msg').textContent='جارٍ رفع الصور وإرسال الطلب...';
  try{const urls=[];for(const f of files){const b=await shrink(f),p=crypto.randomUUID()+'.jpg';const u=await db.storage.from('repair-photos').upload(p,b,{contentType:'image/jpeg'});if(u.error)throw u.error;urls.push(db.storage.from('repair-photos').getPublicUrl(p).data.publicUrl)}
- const r=await db.rpc('zain_repair_submit',{p_name:$('name').value,p_phone:$('phone').value,p_item:$('item').value,p_desc:$('desc').value,p_photos:urls});if(r.error)throw r.error;
+ const r=await db.rpc('zain_repair_submit',{p_name:$('name').value,p_phone:$('phone').value,p_item:$('item').value,p_desc:$('desc').value,p_photos:urls,p_kind:KIND});if(r.error)throw r.error;
  saveTok(r.data);history.replaceState(null,'','?t='+r.data);$('form').reset();files=[];$('previews').replaceChildren();$('msg').textContent='';load(r.data);scrollTo({top:0,behavior:'smooth'})}
  catch(err){$('msg').textContent='تعذر الإرسال: '+(err.message||'حاول مجددًا')}finally{$('send').disabled=false}};
 function saveTok(t){try{const a=JSON.parse(localStorage.getItem(LS)||'[]').filter(x=>x!==t);a.unshift(t);localStorage.setItem(LS,JSON.stringify(a.slice(0,10)))}catch(e){}}
@@ -37,7 +38,8 @@ async function load(t){t=(t||'').trim().replace(/.*[?&]t=/,'');if(!/^[0-9a-f-]{3
  if(d.team_note)h.push(`<div class="note">${esc(d.team_note)}</div>`);
  if(d.status==='quoted')h.push(`<div class="note">هذا تسعير مبدئي مبنيّ على الصور، ويُؤكَّد السعر النهائي بعد وصول القطعة ومعاينتها. العربون: ${d.deposit_amount!=null?money(d.deposit_amount):'يحدده الفريق'}.</div><div class="row"><button class="btn" data-a="accept">أوافق على التسعير المبدئي</button><button class="btn ghost2" data-a="decline">اعتذر</button></div>`);
  if(d.status==='accepted')h.push(`<div class="pay">حوّل العربون${d.deposit_amount!=null?' ('+money(d.deposit_amount)+')':''} عبر فودافون كاش أو إنستاباي إلى<strong>${PAY}</strong></div><button class="btn" data-a="paid">أتممتُ تحويل العربون</button>`);
- if(d.status==='deposit_confirmed')h.push(`<div class="note">وصلنا عربونك، شكرًا لثقتك. سيصلك عنوان الشحن عبر واتساب. بعد الشحن اضغط الزر أدناه.</div><button class="btn" data-a="shipped">تم شحن القطعة</button>`);
+ if(d.status==='deposit_confirmed'&&d.kind==='custom')h.push(`<div class="note">وصلنا عربونك، شكرًا لثقتك. بدأ فريقنا بالتجهيز لتنفيذ قطعتك، وسنوافيك بكل خطوة هنا.</div>`);
+ if(d.status==='deposit_confirmed'&&d.kind!=='custom')h.push(`<div class="note">وصلنا عربونك، شكرًا لثقتك. سيصلك عنوان الشحن عبر واتساب. بعد الشحن اضغط الزر أدناه.</div><button class="btn" data-a="shipped">تم شحن القطعة</button>`);
  if(d.status==='final_priced')h.push(`<div class="row"><button class="btn" data-a="accept_final">أوافق على السعر النهائي</button><button class="btn ghost2" data-a="decline_final">أعيدوا القطعة إليّ</button></div>`);
  h.push('<ul class="tl">'+(d.events||[]).map(e=>`<li><b>${esc(ST[e.status]||e.status)}</b>${e.note?'<br>'+esc(e.note):''}<small>${new Date(e.at).toLocaleString('ar-EG')}</small></li>`).join('')+'</ul>');
  $('track').innerHTML=h.join('');$('track').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>act(t,b.dataset.a))}
